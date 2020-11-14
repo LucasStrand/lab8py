@@ -1,4 +1,4 @@
-
+from threading import Thread
 import tkinter as tk
 import tkinter.messagebox as tkmsgbox
 import tkinter.scrolledtext as tksctxt
@@ -153,12 +153,19 @@ def tryToConnect():
     # a call to g_app.ipPort.get() delivers the text field's content
     # if connection successful, set the program's state to 'connected'
     # *(e.g. g_app.connectButton['text'] = 'disconnect' etc.)
+    host = g_app.ipPort.get()
+    port = 60003
+
+    bufsize = 1024
+    addr = (host, port)
 
     g_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    IPAddr = g_app.ipPort.get()
-    if g_sock.connect((IPAddr,60003)):
-        g_bConnected = True
-        g_app.connectButton['text'] = 'disconnect'
+    g_sock.connect(addr)
+    
+    recieve_thread = Thread(target = recieve)
+    recieve_thread.start()
+    g_bConnected = True
+    g_app.connectButton['text'] = 'disconnect'
 
 
 
