@@ -175,7 +175,11 @@ def sendMessage(master):
     # a call to g_app.textIn.get() delivers the text field's content
     # if a socket.error occurrs, you may want to disconnect, in order
     # to put the program into a defined state
-    pass
+    message = g_app.textIn.get()
+    g_app.textIn.set("") #*clears the input field
+    socket.send(bytearray(message, 'ascii'))
+    if g_sock.error:
+        disconnect()    
 
 
 # poll messages
