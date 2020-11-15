@@ -135,7 +135,11 @@ def disconnect():
     global g_sock
 
 
-    # your code here
+    # *your code here
+    if g_bConnected == True:
+        g_bConnected = False
+        g_sock.close()
+        g_sock = None
 
     # once disconnected, set buttons text to 'connect'
     g_app.connectButton['text'] = 'connect'
@@ -147,19 +151,21 @@ def tryToConnect():
     global g_bConnected
     global g_sock
 
-    # your code here
-    # try to connect to the IP address and port number
-    # as indicated by the text field g_app.ipPort
-    # a call to g_app.ipPort.get() delivers the text field's content
-    # if connection successful, set the program's state to 'connected'
+    # *your code here
+    # *try to connect to the IP address and port number
+    # *as indicated by the text field g_app.ipPort
+    # *a call to g_app.ipPort.get() delivers the text field's content
+    # *if connection successful, set the program's state to 'connected'
     # *(e.g. g_app.connectButton['text'] = 'disconnect' etc.)
 
-    g_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    IPAddr = g_app.ipPort.get()
-    if g_sock.connect((IPAddr,60003)):
+    try:
+        ipAndPort = g_app.ipPort.get().split(":")
+        g_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        g_sock.connect((ipAndPort[0], int(ipAndPort[1])))
         g_bConnected = True
         g_app.connectButton['text'] = 'disconnect'
-
+    except socket.error as error:
+        print(error)
 
 
 # attempt to send the message (in the text field g_app.textIn) to the server
