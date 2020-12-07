@@ -1,4 +1,3 @@
-from threading import Thread
 import tkinter as tk
 import tkinter.messagebox as tkmsgbox
 import tkinter.scrolledtext as tksctxt
@@ -135,7 +134,11 @@ def disconnect():
     global g_sock
 
 
-    # your code here
+    # *your code here
+    if g_bConnected == True:
+        g_bConnected = False
+        g_sock.close()
+        g_sock = None
 
     # once disconnected, set buttons text to 'connect'
     g_app.connectButton['text'] = 'connect'
@@ -147,26 +150,21 @@ def tryToConnect():
     global g_bConnected
     global g_sock
 
-    # your code here
-    # try to connect to the IP address and port number
-    # as indicated by the text field g_app.ipPort
-    # a call to g_app.ipPort.get() delivers the text field's content
-    # if connection successful, set the program's state to 'connected'
+    # *your code here
+    # *try to connect to the IP address and port number
+    # *as indicated by the text field g_app.ipPort
+    # *a call to g_app.ipPort.get() delivers the text field's content
+    # *if connection successful, set the program's state to 'connected'
     # *(e.g. g_app.connectButton['text'] = 'disconnect' etc.)
-    host = g_app.ipPort.get()
-    port = 60003
 
-    bufsize = 1024
-    addr = (host, port)
-
-    g_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    g_sock.connect(addr)
-    
-    recieve_thread = Thread(target = recieve)
-    recieve_thread.start()
-    g_bConnected = True
-    g_app.connectButton['text'] = 'disconnect'
-
+    try:
+        ipAndPort = g_app.ipPort.get().split(":")
+        g_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        g_sock.connect((ipAndPort[0], int(ipAndPort[1])))
+        g_bConnected = True
+        g_app.connectButton['text'] = 'disconnect'
+    except socket.error as error:
+        print(error)
 
 
 # attempt to send the message (in the text field g_app.textIn) to the server
@@ -176,7 +174,11 @@ def sendMessage(master):
     # a call to g_app.textIn.get() delivers the text field's content
     # if a socket.error occurrs, you may want to disconnect, in order
     # to put the program into a defined state
-    pass
+    message = g_app.textIn.get()
+    g_app.textIn.set("") #*clears the input field
+    socket.send(bytearray(message, 'ascii'))
+    if g_sock.error:
+        disconnect()    
 
 
 # poll messages
