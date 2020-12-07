@@ -174,12 +174,12 @@ def sendMessage(master):
     # a call to g_app.textIn.get() delivers the text field's content
     # if a socket.error occurrs, you may want to disconnect, in order
     # to put the program into a defined state
-    message = g_app.textIn.get()
-    g_app.textIn.set("") #*clears the input field
-    socket.send(bytearray(message, 'ascii'))
-    if g_sock.error:
-        disconnect()    
 
+    message = g_app.textIn.get()
+    try:
+        g_sock.sendall(bytearray(message, 'ascii'))
+    except socket.error as error:
+        print(error)
 
 # poll messages
 def pollMessages():
@@ -188,13 +188,14 @@ def pollMessages():
     # printToMessages("Hallooooo")
     
     # your code here
-    try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        data = server.recv(2048)
-        server.setblocking(0)
-        printToMessages(data)
-    except socket.error as error:
-        print(error)
+    if g_bConnected:
+        try:
+            g_sock.setblocking(0)
+            data = g_sock.recv(2048)
+            dataString = data.decode("utf-8")
+            printToMessages(dataString)
+        except socket.error as error:
+            print(error)
     # use the recv() function in non-blocking mode
     # catch a socket.error exception, indicating that no data is available
 
