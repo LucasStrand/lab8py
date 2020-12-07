@@ -188,6 +188,13 @@ def pollMessages():
     # printToMessages("Hallooooo")
     
     # your code here
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        data = server.recv(2048)
+        server.setblocking(0)
+        printToMessages(data)
+    except socket.error as error:
+        print(error)
     # use the recv() function in non-blocking mode
     # catch a socket.error exception, indicating that no data is available
 
